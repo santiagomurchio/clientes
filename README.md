@@ -7,14 +7,17 @@ CRUD de clientes desarrollado con Spring Boot.
 - Java 17
 - Spring Boot 3.3
 - Spring Data JPA
+- Spring Batch
+- Flyway
 - Lombok
-- H2 (base de datos en memoria)
+- PostgreSQL
 - Springdoc OpenAPI (Swagger)
 
 ## Estructura del proyecto
 
 ```
 com.fube.clientes
+├── batch            # Job, Step, Reader, Processor y Writer de Spring Batch
 ├── controladores    # Capa REST
 ├── dto              # Objetos de transferencia de datos
 ├── mapper           # Conversión entre entidad y DTO
@@ -32,6 +35,26 @@ com.fube.clientes
 | `POST` | `/api/clientes` | Crear cliente |
 | `PUT` | `/api/clientes/{id}` | Actualizar cliente |
 | `DELETE` | `/api/clientes/{id}` | Eliminar cliente |
+
+## Migraciones
+
+Las migraciones se gestionan con Flyway y se ejecutan automáticamente al iniciar la aplicación.
+
+| Versión | Descripción |
+|---------|-------------|
+| `V1` | Creación de la tabla `clientes` |
+| `V2` | Seed de 92 clientes |
+
+## Batch job
+
+El job `fillClientesJob` recorre todos los clientes que tienen teléfono o domicilio nulo y les asigna un valor por defecto.
+
+| Campo | Valor por defecto |
+|-------|-------------------|
+| `telefono` | `0000-0000` |
+| `direccion` | `Sin domicilio` |
+
+El job no se ejecuta automáticamente al iniciar la aplicación (`spring.batch.job.enabled=false`).
 
 ## Cómo correr el proyecto
 
@@ -59,7 +82,7 @@ docker run --name clientes-db \
   -p 5432:5432 \
   -v clientes-db-data:/var/lib/postgresql/data \
   --restart unless-stopped \
-  -d postgres
+  -d postgres:16
 ```
 
 | Parámetro | Valor |
