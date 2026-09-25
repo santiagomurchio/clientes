@@ -8,11 +8,13 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @ConditionalOnProperty(name = "spring.batch.job.enabled", havingValue = "true")
+//@EnableScheduling
 public class ClienteJobRunner implements ApplicationRunner {
 
     private final JobLauncher jobLauncher;
@@ -24,6 +26,7 @@ public class ClienteJobRunner implements ApplicationRunner {
     }
 
     @Override
+//    @Scheduled(cron = "${clientes.batch.cron}")
     public void run(ApplicationArguments args) throws Exception {
         JobParameters params = new JobParametersBuilder()
                 .addLong("timestamp", System.currentTimeMillis())

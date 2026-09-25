@@ -21,7 +21,7 @@ public class ClienteBatchConfig {
     @Bean
     public Step fillClientesStep(JobRepository jobRepository,
                                   PlatformTransactionManager transactionManager,
-                                  ClienteItemReader reader,
+                                  ClienteInMemoryItemReader reader,
                                   ClienteItemProcessor processor,
                                   ClienteItemWriter writer) {
         return new StepBuilder("fillClientesStep", jobRepository)

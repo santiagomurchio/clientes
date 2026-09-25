@@ -1,12 +1,13 @@
 package com.fube.clientes.servicios;
 
 import com.fube.clientes.dto.ClienteDTO;
+import com.fube.clientes.exception.RecursoNoEncontradoException;
 import com.fube.clientes.mapper.ClienteMapper;
 import com.fube.clientes.modelos.Cliente;
 import com.fube.clientes.repositorio.ClienteRepositorio;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ClienteServicioImpl implements ClienteServicio {
@@ -26,14 +27,13 @@ public class ClienteServicioImpl implements ClienteServicio {
     public ClienteDTO buscarPorId(Long id) {
         return repositorio.findById(id)
                 .map(ClienteMapper::toDTO)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado con id: " + id));
+                .orElseThrow(() -> new RecursoNoEncontradoException(id));
     }
 
     @Override
-    public List<ClienteDTO> buscarTodos() {
-        return repositorio.findAll().stream()
-                .map(ClienteMapper::toDTO)
-                .toList();
+    public Page<ClienteDTO> buscarTodos(Pageable pageable) {
+        return repositorio.findAll(pageable)
+                .map(ClienteMapper::toDTO);
     }
 
     @Override
