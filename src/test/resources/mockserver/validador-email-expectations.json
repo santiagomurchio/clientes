@@ -1,0 +1,61 @@
+[
+  {
+    "id": "devuelveTrueCuandoElServicioExternoValidaElEmail",
+    "httpRequest": {
+      "method": "GET",
+      "path": "/validar",
+      "queryStringParameters": {
+        "email": ["ana.gomez@test.com"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": {
+        "type": "JSON",
+        "json": {
+          "email": "ana.gomez@test.com",
+          "valido": true
+        }
+      }
+    }
+  },
+  {
+    "id": "devuelveFalseCuandoElServicioExternoRechazaElEmail",
+    "httpRequest": {
+      "method": "GET",
+      "path": "/validar",
+      "queryStringParameters": {
+        "email": ["invalido@test.com"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": {
+        "type": "JSON",
+        "json": {
+          "email": "invalido@test.com",
+          "valido": false
+        }
+      }
+    }
+  },
+  {
+    "id": "lanzaExcepcionCuandoElServicioExternoFalla",
+    "httpRequest": {
+      "method": "GET",
+      "path": "/validar",
+      "queryStringParameters": {
+        "email": ["error@test.com"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 500
+    }
+  }
+]

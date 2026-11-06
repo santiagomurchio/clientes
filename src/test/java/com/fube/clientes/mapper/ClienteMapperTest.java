@@ -2,14 +2,38 @@ package com.fube.clientes.mapper;
 
 import com.fube.clientes.dto.ClienteDTO;
 import com.fube.clientes.modelos.Cliente;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ClienteMapperTest {
 
+    @BeforeAll
+    public static void beforeAll() {
+        System.out.println("BeforeAll()");
+    }
+
+    @BeforeEach
+    public void setup() {
+        System.out.println("BeforeEach()");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        System.out.println("AfterEach()");
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        System.out.println("AfterAll()");
+    }
+
     @Test
     void mapeaClienteADTO() {
+//        System.out.println("BeforeEach()");
+
+        System.out.println("mapeaClienteADTO()");
+
         Cliente cliente = Cliente.builder()
                 .id(1L)
                 .nombre("Juan")
@@ -31,6 +55,10 @@ class ClienteMapperTest {
 
     @Test
     void mapeaDTOACliente() {
+//        System.out.println("BeforeEach()");
+
+        System.out.println("mapeaDTOACliente()");
+
         ClienteDTO dto = ClienteDTO.builder()
                 .id(2L)
                 .nombre("Ana")

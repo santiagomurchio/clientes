@@ -6,9 +6,13 @@ import com.fube.clientes.modelos.Cliente;
 import com.fube.clientes.repositorio.ClienteRepositorio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,12 +49,17 @@ class ClienteServicioImplTest {
                 .email("juan.perez@test.com")
                 .build();
 
-        when(repositorio.save(cliente)).thenReturn(guardado);
+        when(repositorio.save(ArgumentMatchers.any())).thenReturn(guardado);
 
         ClienteDTO resultado = clienteServicio.crear(cliente);
 
         assertThat(resultado.getId()).isEqualTo(1L);
         assertThat(resultado.getEmail()).isEqualTo("juan.perez@test.com");
+
+        Mockito.verify(repositorio, Mockito.times(1)).save(cliente);
+//        Mockito.verify(repositorio, Mockito.never()).findById(ArgumentMatchers.any());
+        Mockito.verifyNoMoreInteractions(repositorio);
+
     }
 
     @Test
@@ -114,6 +123,38 @@ class ClienteServicioImplTest {
         ClienteDTO resultado = clienteServicio.actualizar(cliente);
 
         assertThat(resultado.getTelefono()).isEqualTo("11-2222-2222");
+    }
+
+    @Test
+    void guardaElClienteConLosDatosRecibidos() {
+        Cliente cliente = Cliente.builder()
+                .nombre("Carla")
+                .apellido("Ruiz")
+                .email("carla.ruiz@test.com")
+                .telefono("11-4444-4444")
+                .direccion("San Martin 300")
+                .build();
+
+        Cliente guardado = Cliente.builder()
+                .id(1L)
+                .nombre("Juan")
+                .apellido("Perez")
+                .email("juan.perez@test.com")
+                .build();
+
+        when(repositorio.save(ArgumentMatchers.any())).thenReturn(guardado);
+
+        clienteServicio.crear(cliente);
+
+        ArgumentCaptor<Cliente> captor = ArgumentCaptor.forClass(Cliente.class);
+        verify(repositorio).save(captor.capture());
+
+        Cliente clienteGuardado = captor.getValue();
+        assertThat(clienteGuardado.getNombre()).isEqualTo("Carla");
+        assertThat(clienteGuardado.getApellido()).isEqualTo("Ruiz");
+        assertThat(clienteGuardado.getEmail()).isEqualTo("carla.ruiz@test.com");
+        assertThat(clienteGuardado.getTelefono()).isEqualTo("11-4444-4444");
+        assertThat(clienteGuardado.getDireccion()).isEqualTo("San Martin 300");
     }
 
     @Test

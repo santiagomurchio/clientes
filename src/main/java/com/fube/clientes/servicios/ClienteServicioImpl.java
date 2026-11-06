@@ -20,6 +20,7 @@ public class ClienteServicioImpl implements ClienteServicio {
 
     @Override
     public ClienteDTO crear(Cliente cliente) {
+        repositorio.findById(2L);
         return ClienteMapper.toDTO(repositorio.save(cliente));
     }
 
