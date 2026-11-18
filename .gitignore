@@ -10,6 +10,7 @@ build/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/gradle.xml
 *.iws
 *.iml
 *.ipr
@@ -41,3 +42,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Logs de la aplicación ###
+logs/
