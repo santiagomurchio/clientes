@@ -1,0 +1,8 @@
+# Carga los dashboards JSON de /var/lib/grafana/dashboards ("dashboards como código").
+apiVersion: 1
+providers:
+  - name: clientes
+    folder: Clientes
+    type: file
+    options:
+      path: /var/lib/grafana/dashboards

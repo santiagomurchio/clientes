@@ -1,0 +1,16 @@
+# Grafana arranca con Loki (logs) y Prometheus (métricas) ya configurados como datasources.
+# Las URLs usan el nombre del servicio en la red de compose, no localhost.
+apiVersion: 1
+datasources:
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: true
+
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090

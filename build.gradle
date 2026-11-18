@@ -28,6 +28,13 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
 
+    // Observabilidad
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'       // traceId / spanId en cada log
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'   // logs en formato JSON
+    implementation 'com.github.loki4j:loki-logback-appender:1.5.2'       // envío de logs a Grafana Loki
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'           // métricas en /actuator/prometheus
+
     compileOnly 'org.projectlombok:lombok:1.18.38'
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
 

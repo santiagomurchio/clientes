@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "Clientes - Observabilidad",
+    "description": "Requests para la demo de observabilidad. Cada respuesta trae el header X-Trace-Id: la colección lo guarda en la variable {{ultimoTraceId}} y lo imprime en la consola de Postman para buscarlo en Grafana.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const traceId = pm.response.headers.get('X-Trace-Id');",
+          "if (traceId) {",
+          "  pm.collectionVariables.set('ultimoTraceId', traceId);",
+          "  console.log(`${pm.info.requestName} -> ${pm.response.code} | traceId=${traceId}`);",
+          "}",
+          "pm.test('La respuesta trae X-Trace-Id', () => pm.expect(traceId).to.be.a('string'));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "clienteId", "value": "" },
+    { "key": "ultimoTraceId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Listar clientes",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/clientes" }
+    },
+    {
+      "name": "2. Crear cliente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('clienteId', pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ada\",\n  \"apellido\": \"Lovelace\",\n  \"email\": \"ada@example.com\",\n  \"telefono\": \"1234-5678\",\n  \"direccion\": \"Calle Falsa 123\"\n}"
+        },
+        "url": "{{baseUrl}}/api/clientes"
+      }
+    },
+    {
+      "name": "3. Buscar cliente creado",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/clientes/{{clienteId}}" }
+    },
+    {
+      "name": "4. Actualizar cliente",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ada\",\n  \"apellido\": \"King\",\n  \"email\": \"ada@example.com\",\n  \"telefono\": \"1234-5678\",\n  \"direccion\": \"Calle Falsa 123\"\n}"
+        },
+        "url": "{{baseUrl}}/api/clientes/{{clienteId}}"
+      }
+    },
+    {
+      "name": "5. Buscar cliente inexistente (404 + WARN)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/clientes/999999" }
+    },
+    {
+      "name": "6. Eliminar cliente",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/clientes/{{clienteId}}" }
+    },
+    {
+      "name": "7. Health (Actuator)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/actuator/health" }
+    }
+  ]
+}

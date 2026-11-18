@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Configuración de logs. El sufijo "-spring" permite usar <springProfile> y <springProperty>.
+
+  Destinos (appenders):
+    CONSOLE    -> texto legible para desarrollo
+    JSON_FILE  -> logs/clientes.json, una línea JSON por evento, con rotación
+    LOKI       -> push HTTP a Grafana Loki (solo con el perfil "loki")
+-->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty name="APP_NAME" source="spring.application.name" defaultValue="clientes"/>
+    <springProperty name="LOKI_URL" source="logging.loki.url"
+                    defaultValue="http://localhost:3100/loki/api/v1/push"/>
+
+    <!-- Consola: texto legible. [traceId,spanId] los completa Micrometer Tracing vía MDC -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%X{traceId:-},%X{spanId:-}] %cyan(%logger{30}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Archivo: JSON con rotación por tamaño y fecha -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/clientes.json</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/clientes-%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app":"${APP_NAME}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- Loki: push HTTP directo (loki4j ya envía en lotes y de forma asíncrona) -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>${LOKI_URL}</url>
+        </http>
+        <!-- Enviar como máximo cada 1 s (por defecto espera hasta 60 s para armar el lote) -->
+        <batchTimeoutMs>1000</batchTimeoutMs>
+        <format>
+            <!-- Labels: POCOS y de baja cardinalidad. Nunca traceId ni clienteId como label -->
+            <label>
+                <pattern>app=${APP_NAME},host=${HOSTNAME},level=%level</pattern>
+            </label>
+            <!-- El cuerpo del log va en JSON: traceId, clienteId, etc. se filtran con "| json" -->
+            <message class="net.logstash.logback.layout.LogstashLayout"/>
+        </format>
+    </appender>
+
+    <logger name="com.fube.clientes" level="DEBUG"/>
+    <!-- Para ver el SQL de Hibernate, cambiar a DEBUG -->
+    <logger name="org.hibernate.SQL" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="JSON_FILE"/>
+    </root>
+
+    <!-- Con el perfil "loki" se suma el appender de Loki al root -->
+    <springProfile name="loki">
+        <root>
+            <appender-ref ref="LOKI"/>
+        </root>
+    </springProfile>
+</configuration>

@@ -1,0 +1,10 @@
+# Prometheus funciona por "pull": cada scrape_interval le pide las métricas a la app.
+global:
+  scrape_interval: 5s   # corto para la demo; en producción suele ser 15-60 s
+
+scrape_configs:
+  - job_name: clientes
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # host.docker.internal = tu máquina, vista desde adentro del contenedor
+      - targets: ["host.docker.internal:8080"]
